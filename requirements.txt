@@ -1,0 +1,20 @@
+# Pinned dependencies for reproducible installs
+# Note: If you're on macOS Apple Silicon, consider using `tensorflow-macos` and `tensorflow-metal`
+# instead of `tensorflow` for native acceleration. Verify your Python version is compatible
+# with the TensorFlow release (e.g., TF 2.11 supports Python 3.8-3.10).
+
+flask==2.2.5
+tensorflow==2.11.0
+numpy==1.23.5
+pandas==1.5.3
+opencv-python==4.7.0.72
+matplotlib==3.7.1
+gunicorn==20.1.0
+scikit-learn==1.2.2
+Pillow==9.4.0
+tqdm==4.65.0
+seaborn==0.12.2
+
+# Optional (macOS Apple Silicon):
+# tensorflow-macos==2.11.0
+# tensorflow-metal==0.6.0
