@@ -4,7 +4,9 @@ from tensorflow.keras.models import load_model
 import numpy as np
 import os
 
-app = Flask(__name__)
+# Note: templates are stored in the `template/` folder in this project.
+# Configure Flask to use that folder so render_template('index.html') works.
+app = Flask(__name__, template_folder='template')
 
 # --- Configuration ---
 MODEL_PATH = 'face_emotionModel.h5'
@@ -13,7 +15,7 @@ IMG_SIZE = 48
 model = None
 
 # --- Model Loading ---
-@app.before_request
+@app.before_first_request
 def load_ml_model():
     """
     Loads the trained Keras model before the first request.
@@ -46,7 +48,8 @@ def preprocess_image_for_model(image_data):
 @app.route('/')
 def index():
     """Renders the main web application interface."""
-    return render_template('index.htm', model_status=f"Model loaded: {model is not False and model is not None}")
+    # Render the HTML template stored at `template/index.html`.
+    return render_template('index.html', model_status=f"Model loaded: {model is not False and model is not None}")
 
 @app.route('/predict_emotion', methods=['POST'])
 def predict_emotion():
@@ -81,5 +84,8 @@ def predict_emotion():
         return jsonify({'error': f'An error occurred during prediction: {e}'}), 500
 
 if __name__ == '__main__':
-    # When running locally for development
-    app.run(debug=True, port=5000)
+    # When running locally for development. Use PORT from the environment when provided
+    # (Render and other platforms inject a PORT environment variable).
+    port = int(os.environ.get('PORT', 5000))
+    # Bind to 0.0.0.0 so the app is reachable from outside the container in hosting envs.
+    app.run(host='0.0.0.0', port=port, debug=True)
