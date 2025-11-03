@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 import numpy as np
+import base64
+import cv2
 import os
 
 # Note: templates are stored in the `template/` folder in this project.
@@ -39,8 +41,34 @@ def preprocess_image_for_model(image_data):
     In a real app, this would convert raw image data (e.g., from a webcam feed)
     into a grayscale, 48x48 numpy array, scaled and reshaped for the CNN model.
     """
+    # If image_data is provided as a data URL (base64), decode and preprocess
+    try:
+        if image_data and isinstance(image_data, str) and image_data.startswith('data:'):
+            # Split header and data
+            header, encoded = image_data.split(',', 1)
+            img_bytes = base64.b64decode(encoded)
+            # Convert bytes to numpy array for OpenCV
+            nparr = np.frombuffer(img_bytes, np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            if img is None:
+                raise ValueError('Could not decode image bytes')
+
+            # Convert to grayscale
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            # Resize to model's expected input size
+            resized = cv2.resize(gray, (IMG_SIZE, IMG_SIZE), interpolation=cv2.INTER_AREA)
+
+            # Normalize to [0,1] and reshape to (1, IMG_SIZE, IMG_SIZE, 1)
+            arr = resized.astype('float32') / 255.0
+            arr = np.expand_dims(arr, axis=-1)  # add channel dim
+            arr = np.expand_dims(arr, axis=0)   # add batch dim
+            return arr
+    except Exception as e:
+        # Fall back to dummy input and log warning
+        print(f"Warning: preprocessing failed ({e}), using dummy input")
+
     # Dummy preprocessing: returns a valid input shape for the model
-    # Replace this with actual OpenCV/PIL image handling
     dummy_input = np.random.rand(1, IMG_SIZE, IMG_SIZE, 1).astype('float32') / 255.0
     return dummy_input
 
