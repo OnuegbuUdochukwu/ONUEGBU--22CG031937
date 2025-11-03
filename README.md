@@ -132,7 +132,7 @@ ONUEGBU--22CG031937/
 
 ### Prerequisites
 
-- **Python**: Version 3.10.14 (specified in `runtime.txt`)
+- **Python**: Version 3.10+ (Python 3.10.14 is used in deployment as specified in `runtime.txt`)
 - **pip**: Python package manager
 - **Webcam**: For real-time emotion detection (optional for testing)
 - **Git**: For cloning the repository
@@ -260,7 +260,7 @@ The training script expects a CSV file with the following structure:
 3. **Training Configuration**
    - **Image Size**: 48x48 pixels (grayscale)
    - **Batch Size**: 64
-   - **Epochs**: 2 (default for quick verification; increase to 50+ for production)
+   - **Epochs**: 2 (default for testing the training pipeline; increase to 50+ for actual model training)
    - **Optimizer**: Adam
    - **Loss Function**: Categorical Cross-Entropy
 
@@ -333,12 +333,12 @@ The application is configured for easy deployment to cloud platforms.
 
 ### Using the Procfile
 
-The `EmotionDetector-001/Procfile` contains the deployment configuration:
+A `Procfile` is included in the `EmotionDetector-001/` directory containing the deployment configuration:
 ```
 web: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
 ```
 
-This tells the platform how to run your application in production.
+This tells the hosting platform how to run your application in production. You may need to copy this file to the root directory depending on your deployment platform's requirements.
 
 ### Environment Configuration
 
